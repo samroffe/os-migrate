@@ -175,9 +175,9 @@ install-deps: create-venv
 	@echo "--- Installing/updating Python dependencies ---"
 	@$(CONTAINER_ENGINE) exec -w $(CONTAINER_COLLECTION_ROOT) $(CONTAINER_NAME) bash -c '\
 		source $(VENV_DIR)/bin/activate; \
-		pip install --root-user-action ignore -q --upgrade pip; \
-		pip install --root-user-action ignore -q -r requirements.txt; \
-		pip install --root-user-action ignore -q -r requirements-tests.txt'
+		pip install --upgrade pip; \
+		pip install -r requirements.txt; \
+		pip install -r requirements-tests.txt'
 
 install: build
 	@echo "--- Installing collection $(COLLECTION_TARBALL) into the container ---"
