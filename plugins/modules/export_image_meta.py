@@ -51,6 +51,13 @@ options:
       - Name (or ID) of a Image to export.
     required: true
     type: str
+  visibility:
+    description:
+      - Visibility of the image.
+      - Can be used to override the visibility during export.
+    required: false
+    type: str
+    choices: ['private', 'public', 'community', 'shared']
   availability_zone:
     description:
       - Availability zone.
@@ -97,6 +104,7 @@ def run_module():
     argument_spec = openstack_full_argument_spec(
         path=dict(type="str", required=True),
         name=dict(type="str", required=True),
+        visibility=dict(type="str", required=False, choices=['private', 'public', 'community', 'shared']),
     )
     # TODO: check the del
     # del argument_spec['cloud']
