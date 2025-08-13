@@ -62,6 +62,7 @@ class Image(resource.Resource):
         "hw_vif_model",
         "hw_watchdog_action",
         "hypervisor_type",
+        "id",
         "instance_type_rxtx_factor",
         "is_hidden",
         "is_hw_boot_menu_enabled",
@@ -93,6 +94,7 @@ class Image(resource.Resource):
         "kernel_id",
         "ramdisk_id",
     ]
+    readonly_sdk_params = ["id"]
 
     @classmethod
     def from_sdk(cls, conn, sdk_resource):
@@ -113,10 +115,22 @@ class Image(resource.Resource):
         #   idempotency check and it's not really a property anyway.
         readonly_properties = ["self", "stores"]
 
+        glance_properties_to_drop = [
+            "os_glance_failed_import",
+            "os_glance_importing_to_stores",
+            "base_image_ref",
+            "boot_roles",
+            "clean_attempts",
+            "image_location",
+        ]
+
         # cast .keys() to list to avoid 'dictionary changed size during iteration' error
         for key in list((params.get("properties") or {}).keys()):
-            if key in readonly_properties:
+            if key in readonly_properties or key in glance_properties_to_drop:
                 del params["properties"][key]
+
+        if params.get("visibility") == "private":
+            params["visibility"] = "community"
         return obj
 
     def create_or_update(self, conn, filters=None, blob_path=None):
@@ -127,7 +141,9 @@ class Image(resource.Resource):
         refs = self._refs_from_ser(conn)
         sdk_params = self._to_sdk_params(refs)
         sdk_params["filename"] = blob_path
-        existing = self._find_sdk_res(conn, sdk_params["name"], filters)
+        sdk_params["use_import"] = True
+        sdk_params["all_stores"] = True
+        existing = self._find_sdk_res(conn, sdk_params.get("id") or sdk_params["name"], filters)
         if existing:
             if self._needs_update(self.from_sdk(conn, existing)):
                 self._remove_readonly_params(sdk_params)
@@ -146,6 +162,8 @@ class Image(resource.Resource):
         # just better to feed whatever we can via meta.
         meta_keys = set(cls.params_from_sdk)
         meta_keys.remove("name")
+        if "id" in meta_keys:
+            meta_keys.remove("id")
         meta = {}
         for key in meta_keys:
             if key in sdk_params:
