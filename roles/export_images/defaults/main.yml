@@ -1,5 +1,6 @@
 os_migrate_export_images_blobs: true
 os_migrate_image_blobs_dir: "{{ os_migrate_data_dir }}/image_blobs"
 os_migrate_images_filter:
-  - regex: .* 
+  - regex: .*
+# Set to false to allow destination cloud to generate new image IDs
 os_migrate_preserve_image_uuid: true
