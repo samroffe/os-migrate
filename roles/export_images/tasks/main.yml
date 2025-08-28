@@ -42,6 +42,7 @@
     ca_cert: "{{ os_migrate_src_ca_cert|default(omit) }}"
     client_cert: "{{ os_migrate_src_client_cert|default(omit) }}"
     client_key: "{{ os_migrate_src_client_key|default(omit) }}"
+    preserve_uuid: "{{ os_migrate_preserve_image_uuid }}"
   loop: "{{ export_images_ids_names }}"
 
 - name: make sure image blob dir exists
