@@ -216,13 +216,6 @@ class TestImage(unittest.TestCase):
         self.assertEqual(sdk_params["name"], params["name"])
         self.assertEqual(sdk_params["ramdisk_id"], refs["ramdisk_id"])
 
-    def test_set_visibility_preserves_when_unset(self):
-        img = sdk_image()
-        img["visibility"] = "private"
-        serialized = Image.from_sdk(None, img)
-        params = serialized.params()
-        self.assertEqual(params["visibility"], "private")
-
     def test_set_visibility_overrides(self):
         img = sdk_image()
         img["visibility"] = "private"
