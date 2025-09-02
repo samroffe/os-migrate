@@ -2,3 +2,15 @@ os_migrate_export_images_blobs: true
 os_migrate_image_blobs_dir: "{{ os_migrate_data_dir }}/image_blobs"
 os_migrate_images_filter:
   - regex: .*
+# Set to false to allow destination cloud to generate new image IDs
+os_migrate_preserve_image_uuid: true
+# Set to true to retain original image visibility (private images become community by default)
+os_migrate_preserve_image_visibility: false
+# List of image properties to remove during export
+os_migrate_images_remove_properties:
+  - os_glance_failed_import
+  - os_glance_importing_to_stores
+  - base_image_ref
+  - boot_roles
+  - clean_attempts
+  - image_location

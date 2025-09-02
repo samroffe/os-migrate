@@ -51,6 +51,26 @@ options:
       - Name (or ID) of a Image to export.
     required: true
     type: str
+  preserve_uuid:
+    description:
+      - Whether to include the source image UUID in the exported data.
+      - Set to C(false) to allow the destination cloud to assign a new UUID.
+    required: false
+    type: bool
+    default: true
+  preserve_visibility:
+    description:
+      - Whether to keep the source image visibility in the exported data.
+      - Set to C(true) to retain the original visibility even if it is private.
+    required: false
+    type: bool
+    default: false
+  remove_properties:
+    description:
+      - List of image properties to exclude from the exported data.
+    required: false
+    type: list
+    elements: str
   availability_zone:
     description:
       - Availability zone.
@@ -97,6 +117,9 @@ def run_module():
     argument_spec = openstack_full_argument_spec(
         path=dict(type="str", required=True),
         name=dict(type="str", required=True),
+        preserve_uuid=dict(type="bool", required=False, default=True),
+        preserve_visibility=dict(type="bool", required=False, default=False),
+        remove_properties=dict(type="list", elements="str", required=False, default=None),
     )
     # TODO: check the del
     # del argument_spec['cloud']
@@ -114,7 +137,16 @@ def run_module():
 
     sdk, conn = openstack_cloud_from_module(module)
     sdk_image = conn.image.find_image(module.params["name"], ignore_missing=False)
-    ser_image = image.Image.from_sdk(conn, sdk_image)
+    ser_image = image.Image.from_sdk(
+        conn,
+        sdk_image,
+        module.params["preserve_visibility"],
+        module.params["remove_properties"],
+    )
+
+    if not module.params["preserve_uuid"]:
+        ser_image.params().pop("id", None)
+        ser_image.info().pop("id", None)
 
     result["changed"] = filesystem.write_or_replace_resource(
         module.params["path"], ser_image
