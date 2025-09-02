@@ -101,7 +101,7 @@ class Image(resource.Resource):
         cls,
         conn,
         sdk_resource,
-        preserve_visibility=False,
+        visibility=None,
         remove_properties=None,
     ):
         obj = super().from_sdk(conn, sdk_resource)
@@ -135,7 +135,9 @@ class Image(resource.Resource):
             if key in readonly_properties or key in glance_properties_to_drop:
                 del params["properties"][key]
 
-        if not preserve_visibility and params.get("visibility") == "private":
+        if visibility:
+            params["visibility"] = visibility
+        elif params.get("visibility") == "private":
             params["visibility"] = "community"
         return obj
 

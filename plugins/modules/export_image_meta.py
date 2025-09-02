@@ -58,13 +58,13 @@ options:
     required: false
     type: bool
     default: true
-  preserve_visibility:
+  visibility:
     description:
-      - Whether to keep the source image visibility in the exported data.
-      - Set to C(true) to retain the original visibility even if it is private.
+      - Desired visibility for the exported image.
+      - If omitted, private images are converted to community visibility.
     required: false
-    type: bool
-    default: false
+    type: str
+    choices: [private, public, community, shared]
   remove_properties:
     description:
       - List of image properties to exclude from the exported data.
@@ -118,7 +118,12 @@ def run_module():
         path=dict(type="str", required=True),
         name=dict(type="str", required=True),
         preserve_uuid=dict(type="bool", required=False, default=True),
-        preserve_visibility=dict(type="bool", required=False, default=False),
+        visibility=dict(
+            type="str",
+            required=False,
+            choices=["private", "public", "community", "shared"],
+            default=None,
+        ),
         remove_properties=dict(type="list", elements="str", required=False, default=None),
     )
     # TODO: check the del
@@ -140,7 +145,7 @@ def run_module():
     ser_image = image.Image.from_sdk(
         conn,
         sdk_image,
-        module.params["preserve_visibility"],
+        module.params["visibility"],
         module.params["remove_properties"],
     )
 
