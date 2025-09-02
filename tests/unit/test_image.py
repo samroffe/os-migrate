@@ -213,3 +213,30 @@ class TestImage(unittest.TestCase):
         self.assertEqual(sdk_params["min_ram"], params["min_ram"])
         self.assertEqual(sdk_params["name"], params["name"])
         self.assertEqual(sdk_params["ramdisk_id"], refs["ramdisk_id"])
+
+    def test_set_visibility_preserves_when_unset(self):
+        img = sdk_image()
+        img["visibility"] = "private"
+        serialized = Image.from_sdk(None, img)
+        params = serialized.params()
+        self.assertEqual(params["visibility"], "private")
+
+    def test_set_visibility_overrides(self):
+        img = sdk_image()
+        img["visibility"] = "private"
+        serialized = Image.from_sdk(None, img, set_visibility="public")
+        params = serialized.params()
+        self.assertEqual(params["visibility"], "public")
+
+    def test_remove_properties_list(self):
+        img = sdk_image()
+        img["properties"] = {
+            "os_glance_failed_import": "value",
+            "keep_me": "ok",
+        }
+        serialized = Image.from_sdk(
+            None, img, remove_properties=["os_glance_failed_import"]
+        )
+        props = serialized.params().get("properties", {})
+        self.assertNotIn("os_glance_failed_import", props)
+        self.assertIn("keep_me", props)

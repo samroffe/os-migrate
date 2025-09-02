@@ -101,7 +101,7 @@ class Image(resource.Resource):
         cls,
         conn,
         sdk_resource,
-        visibility=None,
+        set_visibility=None,
         remove_properties=None,
     ):
         obj = super().from_sdk(conn, sdk_resource)
@@ -135,10 +135,8 @@ class Image(resource.Resource):
             if key in readonly_properties or key in glance_properties_to_drop:
                 del params["properties"][key]
 
-        if visibility:
-            params["visibility"] = visibility
-        elif params.get("visibility") == "private":
-            params["visibility"] = "community"
+        if set_visibility is not None:
+            params["visibility"] = set_visibility
         return obj
 
     def create_or_update(self, conn, filters=None, blob_path=None):

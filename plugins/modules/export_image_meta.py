@@ -58,10 +58,10 @@ options:
     required: false
     type: bool
     default: true
-  visibility:
+  set_visibility:
     description:
-      - Desired visibility for the exported image.
-      - If omitted, private images are converted to community visibility.
+      - Visibility to set for the exported image.
+      - If omitted, the source image visibility is preserved.
     required: false
     type: str
     choices: [private, public, community, shared]
@@ -118,7 +118,7 @@ def run_module():
         path=dict(type="str", required=True),
         name=dict(type="str", required=True),
         preserve_uuid=dict(type="bool", required=False, default=True),
-        visibility=dict(
+        set_visibility=dict(
             type="str",
             required=False,
             choices=["private", "public", "community", "shared"],
@@ -145,7 +145,7 @@ def run_module():
     ser_image = image.Image.from_sdk(
         conn,
         sdk_image,
-        module.params["visibility"],
+        module.params["set_visibility"],
         module.params["remove_properties"],
     )
 
