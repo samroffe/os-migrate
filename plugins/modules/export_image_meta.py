@@ -51,13 +51,26 @@ options:
       - Name (or ID) of a Image to export.
     required: true
     type: str
-  visibility:
+  preserve_uuid:
     description:
-      - Visibility of the image.
-      - Can be used to override the visibility during export.
+      - Whether to include the source image UUID in the exported data.
+      - Set to C(false) to allow the destination cloud to assign a new UUID.
+    required: false
+    type: bool
+    default: true
+  set_visibility:
+    description:
+      - Visibility to set for the exported image.
+      - If omitted, the source image visibility is preserved.
     required: false
     type: str
-    choices: ['private', 'public', 'community', 'shared']
+    choices: [private, public, community, shared]
+  remove_properties:
+    description:
+      - List of image properties to exclude from the exported data.
+    required: false
+    type: list
+    elements: str
   availability_zone:
     description:
       - Availability zone.
@@ -104,7 +117,14 @@ def run_module():
     argument_spec = openstack_full_argument_spec(
         path=dict(type="str", required=True),
         name=dict(type="str", required=True),
-        visibility=dict(type="str", required=False, choices=['private', 'public', 'community', 'shared']),
+        preserve_uuid=dict(type="bool", required=False, default=True),
+        set_visibility=dict(
+            type="str",
+            required=False,
+            choices=["private", "public", "community", "shared"],
+            default=None,
+        ),
+        remove_properties=dict(type="list", elements="str", required=False, default=None),
     )
     # TODO: check the del
     # del argument_spec['cloud']
@@ -122,7 +142,16 @@ def run_module():
 
     sdk, conn = openstack_cloud_from_module(module)
     sdk_image = conn.image.find_image(module.params["name"], ignore_missing=False)
-    ser_image = image.Image.from_sdk(conn, sdk_image)
+    ser_image = image.Image.from_sdk(
+        conn,
+        sdk_image,
+        module.params["set_visibility"],
+        module.params["remove_properties"],
+    )
+
+    if not module.params["preserve_uuid"]:
+        ser_image.params().pop("id", None)
+        ser_image.info().pop("id", None)
 
     result["changed"] = filesystem.write_or_replace_resource(
         module.params["path"], ser_image

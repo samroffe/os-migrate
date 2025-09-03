@@ -4,6 +4,7 @@ __metaclass__ = type
 
 import openstack
 import unittest
+from unittest import mock
 
 from ansible_collections.os_migrate.os_migrate.plugins.module_utils import const, image
 
@@ -102,6 +103,7 @@ def serialized_image():
             "hw_vif_model": None,
             "hw_watchdog_action": None,
             "hypervisor_type": None,
+            "id": "uuid-test-image",
             "instance_type_rxtx_factor": None,
             "is_hidden": None,
             "is_hw_boot_menu_enabled": None,
@@ -213,3 +215,39 @@ class TestImage(unittest.TestCase):
         self.assertEqual(sdk_params["min_ram"], params["min_ram"])
         self.assertEqual(sdk_params["name"], params["name"])
         self.assertEqual(sdk_params["ramdisk_id"], refs["ramdisk_id"])
+
+    def test_set_visibility_overrides(self):
+        img = sdk_image()
+        img["visibility"] = "private"
+        serialized = Image.from_sdk(None, img, set_visibility="public")
+        params = serialized.params()
+        self.assertEqual(params["visibility"], "public")
+
+    def test_remove_properties_list(self):
+        img = sdk_image()
+        img["properties"] = {
+            "os_glance_failed_import": "value",
+            "keep_me": "ok",
+        }
+        serialized = Image.from_sdk(
+            None, img, remove_properties=["os_glance_failed_import"]
+        )
+        props = serialized.params().get("properties", {})
+        self.assertNotIn("os_glance_failed_import", props)
+        self.assertIn("keep_me", props)
+
+    def test_create_uses_import_flags_and_preserves_uuid(self):
+        ser = Image.from_data(serialized_image())
+        conn = mock.Mock()
+        conn.image.images.return_value = []
+        conn.image.create_image.return_value = sdk_image()
+
+        changed = ser.create_or_update(conn, blob_path="/tmp/fake")
+
+        self.assertTrue(changed)
+        conn.image.create_image.assert_called_once()
+        _, kwargs = conn.image.create_image.call_args
+        self.assertTrue(kwargs["use_import"])
+        self.assertTrue(kwargs["all_stores"])
+        self.assertEqual(kwargs["id"], "uuid-test-image")
+        self.assertNotIn("id", kwargs["meta"])
