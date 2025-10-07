@@ -121,25 +121,17 @@ class Image(resource.Resource):
         #   idempotency check and it's not really a property anyway.
         readonly_properties = ["self", "stores"]
 
-        glance_properties_to_drop = remove_properties or [
-            "os_glance_failed_import",
-            "os_glance_importing_to_stores",
-            "base_image_ref",
-            "boot_roles",
-            "clean_attempts",
-            "image_location",
-        ]
 
         # cast .keys() to list to avoid 'dictionary changed size during iteration' error
         for key in list((params.get("properties") or {}).keys()):
-            if key in readonly_properties or key in glance_properties_to_drop:
+            if key in readonly_properties or (remove_properties and key in remove_properties):
                 del params["properties"][key]
 
-        if set_visibility is not None:
+        if set_visibility:
             params["visibility"] = set_visibility
         return obj
 
-    def create_or_update(self, conn, filters=None, blob_path=None):
+    def create_or_update(self, conn, filters=None, blob_path=None, use_import=False):
         if not blob_path:
             raise exc.InconsistentState(
                 "create_or_update for Image requires blob_path to be given"
@@ -147,8 +139,10 @@ class Image(resource.Resource):
         refs = self._refs_from_ser(conn)
         sdk_params = self._to_sdk_params(refs)
         sdk_params["filename"] = blob_path
-        sdk_params["use_import"] = True
-        sdk_params["all_stores"] = True
+        if use_import:
+          sdk_params["use_import"] = True
+          sdk_params["all_stores"] = True
+          sdk_params["all_stores_must_succeed"] = True
         existing = self._find_sdk_res(conn, sdk_params.get("id") or sdk_params["name"], filters)
         if existing:
             if self._needs_update(self.from_sdk(conn, existing)):
