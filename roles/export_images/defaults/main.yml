@@ -5,7 +5,7 @@ os_migrate_images_filter:
 # Set to false to allow destination cloud to generate new image IDs
 os_migrate_preserve_image_uuid: true
 # Visibility to set for exported images. Set to null to preserve original visibility
-os_migrate_set_image_visibility: community
+os_migrate_set_image_visibility: private
 # List of image properties to remove during export
 os_migrate_images_remove_properties:
   - os_glance_failed_import
