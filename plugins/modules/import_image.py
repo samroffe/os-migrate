@@ -60,6 +60,13 @@ options:
         already performed and the module doesn't overwrite it.
     required: true
     type: str
+  use_import:
+    description: 
+      - whether to leverage glance image import
+      - when set to False, OS migrate behaves as prior to enable image import
+    required: false
+    type: bool
+    default: false
   availability_zone:
     description:
       - Availability zone.
@@ -110,6 +117,7 @@ def run_module():
         data=dict(type="dict", required=True),
         blob_path=dict(type="str", required=True),
         filters=dict(type="dict", required=False, default={}),
+        use_import=dict(type="bool",required=False, default=False),
     )
     # TODO: check the del
     # del argument_spec['cloud']
@@ -128,7 +136,7 @@ def run_module():
     sdk, conn = openstack_cloud_from_module(module)
     ser_img = image.Image.from_data(module.params["data"])
     result["changed"] = ser_img.create_or_update(
-        conn, module.params["filters"], module.params["blob_path"]
+        conn, module.params["filters"], module.params["blob_path"],module.params["use_import"],
     )
 
     module.exit_json(**result)
