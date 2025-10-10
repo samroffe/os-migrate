@@ -41,10 +41,12 @@ class ServerGroup(resource.Resource):
 
     def _to_sdk_params(self, refs):
         sdk_params = super()._to_sdk_params(refs)
-        # Nova assigns UUIDs when creating server groups and does not accept an
-        # explicit value. Drop any user-provided ID to avoid API errors and to
-        # make the limitation explicit.
+        # The Compute API does not accept caller-specified identifiers when
+        # creating server groups; it generates them instead. Drop any values
+        # provided under ``id`` or ``uuid`` so that we rely on Nova's
+        # assignment and avoid unsupported request fields.
         sdk_params.pop("id", None)
+        sdk_params.pop("uuid", None)
         return sdk_params
 
     @staticmethod

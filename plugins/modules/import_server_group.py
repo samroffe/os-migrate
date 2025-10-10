@@ -29,6 +29,8 @@ description:
 notes:
   - "OpenStack assigns server group UUIDs when creating the resource; imports
     cannot request a specific UUID and a new one will always be generated."
+  - "See the Compute API reference for the supported request body fields:
+    https://docs.openstack.org/api-ref/compute/?expanded=create-server-group-detail#create-server-group"
 
 options:
   auth:
