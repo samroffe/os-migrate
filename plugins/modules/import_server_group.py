@@ -26,6 +26,9 @@ author: "OpenStack tenant migration tools (@os-migrate)"
 
 description:
   - "Import OpenStack server group from an OS-Migrate YAML structure"
+notes:
+  - "OpenStack assigns server group UUIDs when creating the resource; imports
+    cannot request a specific UUID and a new one will always be generated."
 
 options:
   auth:
