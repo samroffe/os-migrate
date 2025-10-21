@@ -91,6 +91,21 @@ class TestServerGroup(unittest.TestCase):
         self.assertEqual(sdk_params["name"], "test-group")
         self.assertEqual(sdk_params["policies"], ["anti-affinity"])
 
+    def test_find_sdk_res_ignores_duplicate_matches(self):
+        class FakeCompute:
+            @staticmethod
+            def find_server_group(name_or_id, **kwargs):  # pylint: disable=unused-argument
+                raise openstack.exceptions.DuplicateResource("duplicate")
+
+        class FakeConnection:
+            compute = FakeCompute()
+
+        result = server_group.ServerGroup._find_sdk_res(
+            FakeConnection(), "test-group", None
+        )
+
+        self.assertIsNone(result)
+
 
 if __name__ == "__main__":
     unittest.main()

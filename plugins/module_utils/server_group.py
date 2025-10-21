@@ -3,6 +3,7 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 import openstack
+from openstack import exceptions as sdk_exc
 
 from ansible_collections.os_migrate.os_migrate.plugins.module_utils import (
     const,
@@ -65,7 +66,13 @@ class ServerGroup(resource.Resource):
         # ``find_server_group`` only searches within the scoped project by
         # default. Admin callers may pass ``{'all_projects': True}`` via the
         # ``filters`` argument to broaden the lookup.
-        return conn.compute.find_server_group(name_or_id, **(filters or {}))
+        try:
+            return conn.compute.find_server_group(name_or_id, **(filters or {}))
+        except sdk_exc.DuplicateResource:
+            # Nova allows multiple server groups with the same name in a
+            # project. Treat ambiguous matches as "not found" so imports will
+            # create a new server group instead of failing the migration.
+            return None
 
     @staticmethod
     def _update_sdk_res(conn, sdk_res, sdk_params):  # pylint: disable=unused-argument
