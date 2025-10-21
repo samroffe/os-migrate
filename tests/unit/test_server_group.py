@@ -54,6 +54,23 @@ class TestServerGroup(unittest.TestCase):
         self.assertEqual(info["policies"], ["anti-affinity", "soft-anti-affinity"])
         self.assertEqual(info["members"], ["server-a", "server-b"])
 
+    def test_serialize_server_group_handles_none_lists(self):
+        sdk_obj = openstack.compute.v2.server_group.ServerGroup(
+            id="uuid-empty-group",
+            project_id="uuid-project",
+            user_id="uuid-user",
+            name="empty-group",
+            policies=None,
+            members=None,
+        )
+
+        sg = server_group.ServerGroup.from_sdk(None, sdk_obj)
+        params, info = sg.params_and_info()
+
+        self.assertEqual(params["policies"], [])
+        self.assertEqual(info["policies"], [])
+        self.assertEqual(info["members"], [])
+
     def test_server_group_never_needs_update(self):
         ser = server_group.ServerGroup.from_data(serialized_server_group())
         other_data = serialized_server_group()

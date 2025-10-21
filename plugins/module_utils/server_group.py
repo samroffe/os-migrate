@@ -29,6 +29,13 @@ class ServerGroup(resource.Resource):
 
     def _data_from_sdk_and_refs(self, sdk_res, refs):
         super()._data_from_sdk_and_refs(sdk_res, refs)
+        # Older Nova responses may return ``None`` for list-valued fields when
+        # the server group has no entries yet (for example, empty ``policies``
+        # or ``members``).  Normalize these to empty lists before sorting so we
+        # don't attempt to iterate over ``None``.
+        self.params().setdefault("policies", [])
+        self.info().setdefault("policies", [])
+        self.info().setdefault("members", [])
         self._sort_param("policies")
         self._sort_info("policies")
         self._sort_info("members")
