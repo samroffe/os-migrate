@@ -123,7 +123,7 @@ def run_module():
 
     sdk, conn = openstack_cloud_from_module(module)
     sdk_server_group = conn.compute.find_server_group(
-        module.params["name"], ignoring_missing=False
+        module.params["name"], ignore_missing=False
     )
 
     ser_server_group = server_group.ServerGroup.from_sdk(conn, sdk_server_group)

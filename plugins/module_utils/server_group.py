@@ -62,6 +62,9 @@ class ServerGroup(resource.Resource):
 
     @staticmethod
     def _find_sdk_res(conn, name_or_id, filters=None):
+        # ``find_server_group`` only searches within the scoped project by
+        # default. Admin callers may pass ``{'all_projects': True}`` via the
+        # ``filters`` argument to broaden the lookup.
         return conn.compute.find_server_group(name_or_id, **(filters or {}))
 
     @staticmethod

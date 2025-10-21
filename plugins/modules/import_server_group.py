@@ -56,6 +56,8 @@ options:
   filters:
     description:
       - Options for filtering existing resources to be looked up, e.g. by project.
+      - Set ``all_projects`` to ``true`` to search across all projects when
+        checking for an existing server group (admin only).
     required: false
     type: dict
   availability_zone:

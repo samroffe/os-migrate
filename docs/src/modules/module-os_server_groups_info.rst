@@ -23,3 +23,9 @@ below:
 .. literalinclude:: ../../roles/export_server_groups/tasks/main.yml
    :language: yaml
    :lines: 1-9
+
+The module accepts a ``filters`` dictionary that is passed straight to the
+OpenStack SDK's :meth:`conn.compute.server_groups` call. For example, an
+administrator can set ``filters: {all_projects: true}`` to look up server
+groups outside the currently scoped project, while the default behavior only
+returns resources visible within the authenticated project.

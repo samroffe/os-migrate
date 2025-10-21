@@ -30,7 +30,11 @@ description:
 options:
   filters:
     description:
-      - Options for filtering the server group info.
+      - Options for filtering the server group info. Values are forwarded
+        directly to ``conn.compute.server_groups``.
+      - Set ``all_projects`` to ``true`` to search across all projects (admin
+        only); otherwise only server groups visible within the scoped project
+        are returned.
     required: false
     type: dict
   availability_zone:
@@ -46,13 +50,19 @@ options:
 """
 
 EXAMPLES = r"""
-- name: List server groups information
+- name: List server groups information in the current project
   os_server_groups_info:
     auth:
       auth_url: https://identity.example.com
       username: user
       password: password
       project_name: someproject
+
+- name: List server groups accessible to an administrator across projects
+  os_server_groups_info:
+    cloud: admin_cloud
+    filters:
+      all_projects: true
 """
 
 RETURN = r"""
