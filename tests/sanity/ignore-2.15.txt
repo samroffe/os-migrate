@@ -10,6 +10,7 @@ plugins/modules/export_router_interfaces.py validate-modules:missing-gplv3-licen
 plugins/modules/export_router.py validate-modules:missing-gplv3-license
 plugins/modules/export_security_group.py validate-modules:missing-gplv3-license
 plugins/modules/export_security_group_rules.py validate-modules:missing-gplv3-license
+plugins/modules/export_server_group.py validate-modules:missing-gplv3-license
 plugins/modules/export_subnet.py validate-modules:missing-gplv3-license
 plugins/modules/export_user_project_role_assignment.py validate-modules:missing-gplv3-license
 plugins/modules/export_user.py validate-modules:missing-gplv3-license
@@ -23,6 +24,7 @@ plugins/modules/import_router_interface.py validate-modules:missing-gplv3-licens
 plugins/modules/import_router.py validate-modules:missing-gplv3-license
 plugins/modules/import_security_group.py validate-modules:missing-gplv3-license
 plugins/modules/import_security_group_rule.py validate-modules:missing-gplv3-license
+plugins/modules/import_server_group.py validate-modules:missing-gplv3-license
 plugins/modules/import_subnet.py validate-modules:missing-gplv3-license
 plugins/modules/import_user_project_role_assignment.py validate-modules:missing-gplv3-license
 plugins/modules/import_user.py validate-modules:missing-gplv3-license
@@ -42,5 +44,6 @@ plugins/modules/os_keypairs_info.py validate-modules:missing-gplv3-license
 plugins/modules/os_role_assignments_info.py validate-modules:missing-gplv3-license
 plugins/modules/os_routers_info.py validate-modules:missing-gplv3-license
 plugins/modules/os_security_groups_info.py validate-modules:missing-gplv3-license
+plugins/modules/os_server_groups_info.py validate-modules:missing-gplv3-license
 plugins/modules/read_resources.py validate-modules:missing-gplv3-license
 plugins/modules/validate_resource_files.py validate-modules:missing-gplv3-license
